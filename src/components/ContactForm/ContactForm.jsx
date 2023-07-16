@@ -1,53 +1,77 @@
-import React, { Component} from 'react';
+// import React, { Component} from 'react';
+import actions from '../../redux/contacts/contacts-actions';
+import { getItems, getFilter } from "redux/contacts/contacts-selectors";
+import { useDispatch, useSelector } from "react-redux";
+import { useState } from 'react';
+
 import style from './ContactForm.module.css';
-// import PropTypes from 'prop-types';
 
-class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
-  };
+const ContactForm = () => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
   
+  const contacts = useSelector(getItems);
+  const filterValue = useSelector(getFilter);
+  const dispatch = useDispatch();
   
-  handleChange = name => e => {
-    const { target } = e;
-    
-    this.setState(() => ({
-      [name]: target.value,
-    }));
-    
+  const handleContactInfo = () => {
+    dispatch(actions.addContact(name, number));
+    if (filterValue !== '') {
+        dispatch(actions.changeFilter(''));
+    }
+};
+
+
+  const handleChange = e => {
+    const { name, value } = e.currentTarget;
+        
+        switch (name) {
+            case 'name':
+                setName(value);
+                break;
+            
+            case 'number': {
+                setNumber(value);
+                break;
+            }
+                
+            default:
+                return;
+        }
   };
   
   
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    
-    const { onSubmit } = this.props;
-    onSubmit(this.state);
-    this.resetForm();
-    
-    
-  };
-  
-  resetForm = () => {
-    this.setState(() => ({
-      name: '',
-      number: '',
-    }));
 
+    if (contacts.find(contact => contact.name.toLowerCase() === name.toLowerCase())) {
+        if (filterValue !== '') {
+            dispatch(actions.changeFilter(''));
+        }
+        
+        return alert(`${name} is already in contacts`);
+    }
+
+    handleContactInfo();
+
+    resetForm();
   };
 
-  render() {
+  const resetForm = () => {
+    setName('');
+    setNumber('');
+};
+
     return (
       <div className={style.inputContent}>
-        <form className={style.form} onSubmit={this.handleSubmit}>
+        <form className={style.form} onSubmit={handleSubmit}>
           <div className={style.inputsCont}>
             <p>Nombre </p>
 
             <input
-              value={this.state.name}
-              onChange={this.handleChange('name')}
+              value={name}
+              onChange={handleChange}
               type="text"
               name="name"
               pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
@@ -57,8 +81,8 @@ class ContactForm extends Component {
             />
             <p>Numero</p>
             <input
-              value={this.state.number}
-              onChange={this.handleChange('number')}
+              value={number}
+              onChange={handleChange}
               type="tel"
               name="number"
               pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -74,6 +98,6 @@ class ContactForm extends Component {
       </div>
     );
   }
-}
 
-export default ContactForm;
+
+  export default ContactForm;

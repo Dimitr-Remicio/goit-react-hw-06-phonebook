@@ -19,7 +19,7 @@ export default function Headers() {
           href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
-        <title>3-React</title>
+        <title>6-React</title>
       </Helmet>
     </div>
   );
